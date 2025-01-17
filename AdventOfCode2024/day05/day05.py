@@ -21,6 +21,22 @@ def is_correct(update, order):
 				return False
 	return True
 
+def fix_order(update, order):
+	for i in range(len(update)):
+		for j in range(i-1, -1, -1):
+			if not update[i] in order:
+				continue
+			if update[j] in order[update[i]]:
+				#print(update[j], order[update[i]])
+				#print("before:", update)
+				temp = update[j]
+				update[j] = update[i]
+				update[i] = temp
+				#print("after:", update)
+				update = fix_order(update, order)
+				return update
+	return update
+
 with open(sys.argv[1], "r") as file:
 	raw_order = ""
 	updates = ""
@@ -36,7 +52,8 @@ with open(sys.argv[1], "r") as file:
 	sum = 0
 	for raw_update in updates.split("\n"):
 		update = [int(value) for value in raw_update.split(",")]
-		while not is_correct(update, order):
-			# swap until correct using sort-ish
-			sum += update[int(len(update) / 2)]
+		if not is_correct(update, order):
+			new_update = fix_order(update, order)
+			#print(new_update)
+			sum += new_update[int(len(new_update) / 2)]
 	print(sum)
